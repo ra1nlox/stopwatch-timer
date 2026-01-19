@@ -22,3 +22,13 @@ Very simple stopwatch/timer made using C, [https://github.com/raysan5/raylib](Ra
 ```
 
 These two commands create a `dist` directory in which will lie the said executables
+
+# Usage
+
+## Controls
+
+- Space ― start/pause
+- R ― reset the count
+- S ― switch the count mode (stopwatch by default, timer if pressed)
+- ↑ or ↓ ― increase/decrease seconds/minutes
+- ← or → ― select minutes or seconds to increment/decrement
