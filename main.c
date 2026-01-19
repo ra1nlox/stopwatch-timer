@@ -8,11 +8,23 @@
 #include "styles/dark/style_dark.h"
 // #include "styles/genesis/style_genesis.h"
 
-typedef enum
-{
-  MINUTES = 0,
-  SECONDS = 1,
-} SELECTION_TYPE;
+#define FADE_TIMEOUT 0.3
+
+#define switch_clock_mode(clock_mode) \
+  do                                  \
+  {                                   \
+    switch (clock_type)               \
+    {                                 \
+    case STOPWATCH:                   \
+      clock_type = TIMER;             \
+      break;                          \
+    case TIMER:                       \
+      clock_type = STOPWATCH;         \
+      break;                          \
+    default:                          \
+      break;                          \
+    }                                 \
+  } while (0)
 
 typedef enum
 {
@@ -20,10 +32,16 @@ typedef enum
   TIMER = 1,
 } CLOCK_TYPE;
 
+void increment_time(float *seconds, float *minutes)
+{
+
+  return;
+}
+
 int main()
 {
   InitWindow(1200, 800, "Stopwatch");
-  SetWindowState(4);
+  SetWindowState(FLAG_WINDOW_RESIZABLE);
   SetTargetFPS(60);
   // Depedning on the style used, nncomment the respective call. Styles were copied from raygui repository.
   GuiLoadStyleDark();
@@ -40,11 +58,10 @@ int main()
   bool clock_count = false;
 
   float fade_timer = 0;
-  bool icon_existance = false;
+  bool reset_icon_state = false;
 
-  SELECTION_TYPE selection_state = SECONDS;
+  bool is_seconds_selected = true;
   CLOCK_TYPE clock_type = STOPWATCH;
-  bool clock_type_display = true;
 
   GuiSetStyle(DEFAULT, TEXT_SIZE, 128);
   GuiSetIconScale(4);
@@ -76,6 +93,7 @@ int main()
     Rectangle reset_icon = {state_icon.x, state_icon.y - 200, state_icon.width, state_icon.height};
     Rectangle clock_type_state = {state_icon.x + 3, state_icon.y - 220, 30, 30};
 
+    // Kinda responsive layout, since every Rectangle used is tied one way or another to other element's Rectangle
     if (IsWindowResized())
     {
       sc_s.x = GetScreenWidth();
@@ -90,140 +108,109 @@ int main()
     {
       clock_count = !clock_count;
     }
+    if (IsKeyPressed(KEY_F))
+    {
+      if (IsWindowMaximized())
+      {
+        RestoreWindow();
+        printf("RESTORED");
+      }
+      else
+      {
+        MaximizeWindow();
+        printf("MAXIMIZED");
+      }
+    }
+    // The clock has to be stopped to be able to reset
     if (IsKeyPressed(KEY_R) && !clock_count)
     {
       seconds = 0;
       minutes = 0;
-      icon_existance = true;
-      clock_type_display = false;
+      reset_icon_state = true;
     }
+    // The clock has to be stopped to be able to switch modes
     if (IsKeyPressed(KEY_S) && !clock_count)
     {
-      switch (clock_type)
-      {
-      case STOPWATCH:
-        clock_type = TIMER;
-        break;
-
-      case TIMER:
-        clock_type = STOPWATCH;
-        break;
-
-      default:
-        break;
-      }
+      switch_clock_mode(clock_type);
     }
     if (IsKeyPressed(KEY_RIGHT))
     {
-      switch (selection_state)
-      {
-      case SECONDS:
-        break;
-
-      case MINUTES:
-        selection_state = SECONDS;
-        break;
-
-      default:
-        break;
-      }
+      is_seconds_selected = true;
     }
     if (IsKeyPressed(KEY_LEFT))
     {
-      switch (selection_state)
-      {
-      case SECONDS:
-        selection_state = MINUTES;
-        break;
-
-      case MINUTES:
-        break;
-
-      default:
-        break;
-      }
+      is_seconds_selected = false;
     }
     if ((IsKeyPressed(KEY_UP) || IsKeyPressedRepeat(KEY_UP)) && !clock_count)
     {
-      switch (selection_state)
+      if (is_seconds_selected)
       {
-      case SECONDS:
-        if (seconds >= 59)
+        if (seconds < 59)
         {
-          break;
+          seconds = (int)seconds + 1;
         }
-        ++seconds;
-        break;
+      }
+      else
+      {
 
-      case MINUTES:
-        if (minutes == 99)
+        if (minutes < 99)
         {
-          break;
+          ++minutes;
         }
-        ++minutes;
-        break;
-
-      default:
-        break;
       }
     }
+
     if ((IsKeyPressed(KEY_DOWN) || IsKeyPressedRepeat(KEY_DOWN)) && !clock_count)
     {
-      switch (selection_state)
+      if (is_seconds_selected)
       {
-      case SECONDS:
-        if ((int)seconds == 0)
+        if ((int)seconds != 0)
         {
-          break;
+          seconds = (int)seconds - 1;
         }
-        --seconds;
-        break;
-
-      case MINUTES:
-        if (minutes == 0)
+      }
+      else
+      {
+        if (minutes != 0)
         {
-          break;
+          --minutes;
         }
-        --minutes;
-        break;
-
-      default:
-        break;
       }
     }
 
-    switch (selection_state)
+    // Display selection arrows
+    if (is_seconds_selected)
     {
-    case SECONDS:
-      if (!clock_count && !icon_existance)
+      if (!clock_count && !reset_icon_state)
+      {
         GuiLabel(seconds_selection_icon, GuiIconText(ICON_ARROW_DOWN, NULL));
-      break;
-
-    case MINUTES:
-      if (!clock_count && !icon_existance)
+      }
+    }
+    else
+    {
+      if (!clock_count && !reset_icon_state)
         GuiLabel(minutes_selection_icon, GuiIconText(ICON_ARROW_DOWN, NULL));
-      break;
-
-    default:
-      break;
     }
 
-    if (icon_existance)
+    // Small part to make icon appear and dissapear
+    if (reset_icon_state)
     {
       fade_timer += GetFrameTime();
-      if (fade_timer < 0.3)
+      // Increment timer and see if it is under specified value. Default is 0.3, so the icon will be displayed until fade_timer reaches 0.3 (so for 0.3 seconds)
+      if (fade_timer < FADE_TIMEOUT)
       {
         GuiLabel(reset_icon, GuiIconText(ICON_CLOCK, NULL));
       }
       else
       {
-        icon_existance = false;
-        clock_type_display = true;
+        reset_icon_state = false;
+        // Reset timer for future calls
         fade_timer = 0;
       }
     }
 
-    if (clock_type_display)
+    // Normally the mode type is displayed when reset icon is not showed
+    if (!reset_icon_state)
     {
       switch (clock_type)
       {
@@ -242,7 +229,7 @@ int main()
 
     if (clock_count)
     {
-      char buf[20];
+      char buf[8];
       switch (clock_type)
       {
       case STOPWATCH:
@@ -287,7 +274,7 @@ int main()
     }
     else
     {
-      char buf[20];
+      char buf[8];
       sprintf(buf, "%02d:%02d", (int)minutes, (int)seconds);
       GuiLabel(centered_position, buf);
       GuiLabel(state_icon, GuiIconText(ICON_PLAYER_PAUSE, NULL));
