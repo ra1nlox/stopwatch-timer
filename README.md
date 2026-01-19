@@ -29,6 +29,7 @@ These two commands create a `dist` directory in which will lie the said executab
 
 - Space ― start/pause
 - R ― reset the count
-- S ― switch the count mode (stopwatch by default, timer if pressed)
+- S ― switch the count mode (stopwatch by default, timer if pressed | the clock mode icon will show S and T respectively )
+- F - maximize window
 - ↑ or ↓ ― increase/decrease seconds/minutes
 - ← or → ― select minutes or seconds to increment/decrement
