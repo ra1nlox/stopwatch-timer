@@ -32,6 +32,8 @@ int main()
 
   Vector2 sc_s = {GetScreenWidth(),
                   GetScreenHeight()};
+
+  // The main
   Vector2 label_dimensions = {270, 0};
   float seconds = 0;
   float minutes = 0;
@@ -55,15 +57,22 @@ int main()
     BeginDrawing();
     ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
 
+    // The center of the window (not really but stylistically)
     Vector2 center = {sc_s.x / 2.0f, sc_s.y / 2.0f - 50};
 
+    // Position for the main label (the "00:00" one)
     Rectangle centered_position = {center.x - label_dimensions.x / 2,
                                    center.y - label_dimensions.y / 2,
                                    label_dimensions.x,
                                    label_dimensions.y};
+    // "State" here means play/pause
     Rectangle state_icon = {center.x - 35, center.y + 100, 8, 8};
+
+    // The little arrows above the seconds or minutes
     Rectangle seconds_selection_icon = {state_icon.x + 80, state_icon.y - 175, state_icon.width, state_icon.height};
     Rectangle minutes_selection_icon = {state_icon.x - 75, state_icon.y - 175, state_icon.width, state_icon.height};
+
+    // Reset is the one that appears when the R is pressed
     Rectangle reset_icon = {state_icon.x, state_icon.y - 200, state_icon.width, state_icon.height};
     Rectangle clock_type_state = {state_icon.x + 3, state_icon.y - 220, 30, 30};
 
