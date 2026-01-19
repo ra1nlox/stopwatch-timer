@@ -5,7 +5,7 @@ app_name = stopwatch
 
 dlinux:
 	mkdir -p $(linux_output_path)/
-	cc \
+	gcc \
 	-Wall \
 	-Wextra \
 	-ggdb \
@@ -35,7 +35,6 @@ win:
 	-Wall \
 	-Wextra \
 	-Wno-unused-parameter \
-	-static \
 	-I./raylib-5.5_win64_mingw-w64/include/ \
 	-I./include/ \
   -L./raylib-5.5_win64_mingw-w64/lib/ \

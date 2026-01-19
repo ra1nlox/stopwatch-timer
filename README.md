@@ -1,9 +1,24 @@
-# Raylib Template
+# Stopwatch / Timer
 
-## Quick Start
+Very simple stopwatch/timer made using C, [https://github.com/raysan5/raylib](Raylib) and [https://github.com/raysan5/raygui](Raygui)
 
-```console
-$ cc -o nob nob.c
-$ ./nob
-$ ./main
+# Build
+
+## Dependencies
+
+- gcc
+- mingw-w64-gcc (for Windows build)
+- raylib (included)
+- raygui (included)
+
+## Building
+
+```bash
+  # to make a binary for linux
+  make linux
+
+  # to make an executable for win64
+  make win
 ```
+
+These two commands create a `dist` directory in which will lie the said executables
